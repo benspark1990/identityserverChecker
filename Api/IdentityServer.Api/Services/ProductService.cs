@@ -29,6 +29,7 @@ namespace IdentityServer.Api.Services
             }
             else
             {
+                model.ModifiedOn = DateTime.Now;
                 model.CreatedOn = DateTime.Now;
                 await _productRepository.AddAsync(model);
             }
