@@ -8,6 +8,7 @@ namespace IdentityServer.Api.Interfaces
 {
     public interface IAsyncRepository<T> where T : BaseEntity
     {
+        Task<T> GetByIdAsync(long id);
         Task<T> GetByIdAsync(int id);
         Task<T> GetByIdAsync(Guid id);
         Task<IReadOnlyList<T>> ListAllAsync();
