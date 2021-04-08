@@ -14,12 +14,14 @@ namespace IdentityServer.Api.Services
     public class AsyncRepository<T> : IAsyncRepository<T> where T : BaseEntity
     {
         protected readonly AppDBContext _dbContext;
-
         public AsyncRepository(AppDBContext dbContext)
         {
             _dbContext = dbContext;
         }
-
+        public virtual async Task<T> GetByIdAsync(long id)
+        {
+            return await _dbContext.Set<T>().FindAsync(id);
+        }
         public virtual async Task<T> GetByIdAsync(int id)
         {
             return await _dbContext.Set<T>().FindAsync(id);

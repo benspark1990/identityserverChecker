@@ -1,3 +1,5 @@
+using AutoMapper;
+using IdentityServer.Api.Configurations;
 using IdentityServer.Api.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,8 +43,14 @@ namespace IdentityServer.Api
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {        
+        {
 
+            services.AddWebServices(Configuration);
+
+            IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
+            services.AddSingleton(mapper);
+
+            services.AddAutoMapper(typeof(Startup).Assembly);
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

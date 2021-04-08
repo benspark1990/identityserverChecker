@@ -7,7 +7,11 @@ namespace IdentityServer.Api.Interfaces
 {
     public interface IProductService
     {
-        Task<ProductDto> CreateProduct(ProductDto viewModel);
-        Task<List<ProductDto>> GetAllProducts();
+        Task<ProductDto> CreateUpdateProduct(ProductDto viewModel);
+        Task<IEnumerable<ProductDto>> GetAllProducts();
+        Task<IEnumerable<ProductDto>> GetActiveProducts();
+        Task<ProductDto> GetProductById(long Id);
+        Task<bool> DeleteProduct(long Id);
+
     }
 }

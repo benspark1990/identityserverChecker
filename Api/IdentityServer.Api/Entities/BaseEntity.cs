@@ -7,6 +7,6 @@ namespace IdentityServer.Api.Entities
         public long ID { get; set; }
         public DateTimeOffset CreatedOn { get; set; }
         public DateTimeOffset ModifiedOn { get; set; }
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }
