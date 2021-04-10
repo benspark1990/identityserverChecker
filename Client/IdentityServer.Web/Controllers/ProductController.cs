@@ -1,5 +1,6 @@
 ﻿using IdentityServer.Web.ApiServices.Interfaces;
 using IdentityServer.Web.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -22,9 +23,11 @@ namespace IdentityServer.Web.Controllers
         // GET: ProductController
         public async Task<ActionResult> Index()
         {
+            var accessToken = await HttpContext.GetTokenAsync("access_token");
+
             List<ProductDto> list = new List<ProductDto>();
-            var resp = await _productsWebService.GetAllProductsAsync<ResponseDto>();
-            if (resp.IsSuccess)
+            var resp = await _productsWebService.GetAllProductsAsync<ResponseDto>(accessToken);
+            if (resp != null && resp.IsSuccess)
             {
                 list = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(resp.Result));
             }
@@ -50,8 +53,9 @@ namespace IdentityServer.Web.Controllers
         {
             try
             {
-                var resp = await _productsWebService.UpdateProductAsync<ResponseDto>(model);
-                if (resp.IsSuccess)
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var resp = await _productsWebService.UpdateProductAsync<ResponseDto>(model, accessToken);
+                if (resp != null && resp.IsSuccess)
                 {
                     return RedirectToAction(nameof(Index));
                 }
@@ -70,8 +74,9 @@ namespace IdentityServer.Web.Controllers
             ProductDto model = new ProductDto();
             try
             {
-                var resp = await _productsWebService.GetProductByIdAsync<ResponseDto>(id);
-                if (resp.IsSuccess)
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var resp = await _productsWebService.GetProductByIdAsync<ResponseDto>(id, accessToken);
+                if (resp != null && resp.IsSuccess)
                 {
                     model = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(resp.Result));
                 }
@@ -90,8 +95,9 @@ namespace IdentityServer.Web.Controllers
         {
             try
             {
-                var resp = await _productsWebService.UpdateProductAsync<ResponseDto>(model);
-                if (resp.IsSuccess)
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var resp = await _productsWebService.UpdateProductAsync<ResponseDto>(model, accessToken);
+                if (resp != null && resp.IsSuccess)
                 {
                     return RedirectToAction(nameof(Index));
                 }

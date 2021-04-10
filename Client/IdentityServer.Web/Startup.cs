@@ -42,7 +42,7 @@ namespace IdentityServer.Web
             .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
             {
-                options.Authority = "https://localhost:44367";
+                options.Authority = "https://localhost:5001";
 
                 options.ClientId = "mvc";
                 options.ClientSecret = "secret";
@@ -71,15 +71,15 @@ namespace IdentityServer.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting();
-
+            app.UseRouting(); 
+            app.UseAuthentication();
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDefaultControllerRoute()
+                    .RequireAuthorization();
             });
         }
     }

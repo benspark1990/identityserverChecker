@@ -7,54 +7,60 @@ namespace IdentityServer.Web.ApiServices
 {
     public class ProductsWebService : BaseWebService, IProductsWebService
     {
-        public async Task<T> GetAllProductsAsync<T>()
+        public async Task<T> GetAllProductsAsync<T>(string token)
         {
             return await this.SendAsync<T>(new ApiRequest()
             {
                 Url = "Product",
-                ApiType = ApiType.GET
+                ApiType = ApiType.GET,
+                AccessToken= token
             });
         }
-        public async Task<T> GetActiveProductsAsync<T>()
+        public async Task<T> GetActiveProductsAsync<T>(string token)
         {
             return await this.SendAsync<T>(new ApiRequest()
             {
                 Url = "Product/Active",
-                ApiType = ApiType.GET
+                ApiType = ApiType.GET,
+                AccessToken = token
             });
         }
-        public async Task<T> GetProductByIdAsync<T>(long id)
+        public async Task<T> GetProductByIdAsync<T>(long id, string token)
         {
             return await this.SendAsync<T>(new ApiRequest()
             {
                 Url = "Product/" + id,
-                ApiType = ApiType.GET
+                ApiType = ApiType.GET,
+                AccessToken = token
             });
         }
-        public async Task<T> CreateProductAsync<T>(ProductDto productDto)
+        public async Task<T> CreateProductAsync<T>(ProductDto productDto, string token)
         {
             return await this.SendAsync<T>(new ApiRequest()
             {
                 Data = productDto,
                 Url = "Product",
-                ApiType = ApiType.POST
+                ApiType = ApiType.POST,
+                AccessToken = token
             });
         }
-        public async Task<T> UpdateProductAsync<T>(ProductDto productDto)
+        public async Task<T> UpdateProductAsync<T>(ProductDto productDto, string token)
         {
             return await this.SendAsync<T>(new ApiRequest()
             {
                 Data = productDto,
                 Url = "Product",
-                ApiType = ApiType.PUT
+                ApiType = ApiType.PUT,
+                AccessToken = token
             });
         }
-        public async Task<T> DeleteProductAsync<T>(long eventid)
+        public async Task<T> DeleteProductAsync<T>(long eventid, string token)
         {
             return await this.SendAsync<T>(new ApiRequest()
             {
                 Url = "Product/" + eventid,
-                ApiType = ApiType.DELETE
+                ApiType = ApiType.DELETE,
+                AccessToken = token
             });
         }
     }

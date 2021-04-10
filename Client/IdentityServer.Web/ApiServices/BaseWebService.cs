@@ -1,9 +1,11 @@
 ﻿using IdentityServer.Web.ApiServices.Interfaces;
 using IdentityServer.Web.Constants;
 using IdentityServer.Web.Models;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,31 +23,52 @@ namespace IdentityServer.Web.ApiServices
 
         public async Task<T> SendAsync<T>(ApiRequest apiRequest)
         {
-
-            httpClient.DefaultRequestHeaders.Clear();
-            var uri = new Uri(string.Format(GlobalConstants.ApiBase, apiRequest.Url));
-            var dataJson = apiRequest.Data == null ? string.Empty : JsonConvert.SerializeObject(apiRequest.Data);
-            var content = new StringContent(dataJson, Encoding.UTF8, "application/json");
-            HttpResponseMessage apiResponse = null;
-
-            switch (apiRequest.ApiType)
+            try
             {
-                case ApiType.POST:
-                    apiResponse = await httpClient.PostAsync(uri, content);
-                    break;
-                case ApiType.PUT:
-                    apiResponse = await httpClient.PutAsync(uri, content);
-                    break;
-                case ApiType.DELETE:
-                    apiResponse = await httpClient.DeleteAsync(uri);
-                    break;
-                default:
-                    apiResponse = await httpClient.GetAsync(uri);
-                    break;
+                httpClient.DefaultRequestHeaders.Clear();
+                var uri = new Uri(string.Format(GlobalConstants.ApiBase, apiRequest.Url));
+                var dataJson = apiRequest.Data == null ? string.Empty : JsonConvert.SerializeObject(apiRequest.Data);
+                var content = new StringContent(dataJson, Encoding.UTF8, "application/json");
+                
+                
+                HttpResponseMessage apiResponse = null;
+
+                if (!string.IsNullOrEmpty(apiRequest.AccessToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.AccessToken);
+                }
+
+                switch (apiRequest.ApiType)
+                {
+                    case ApiType.POST:
+                        apiResponse = await httpClient.PostAsync(uri, content);
+                        break;
+                    case ApiType.PUT:
+                        apiResponse = await httpClient.PutAsync(uri, content);
+                        break;
+                    case ApiType.DELETE:
+                        apiResponse = await httpClient.DeleteAsync(uri);
+                        break;
+                    default:
+                        apiResponse = await httpClient.GetAsync(uri);
+                        break;
+                }
+                var apiContent = await apiResponse.Content.ReadAsStringAsync();
+                var apiResponseDto = JsonConvert.DeserializeObject<T>(apiContent);
+                return apiResponseDto;
             }
-            var apiContent = await apiResponse.Content.ReadAsStringAsync();
-            var apiResponseDto = JsonConvert.DeserializeObject<T>(apiContent);
-            return apiResponseDto;
+            catch (Exception ex)
+            {
+                var dto = new ResponseDto
+                {
+                    DisplayMessage = "Error",
+                    ErrorMessages = new System.Collections.Generic.List<string> { Convert.ToString(ex.Message) },
+                    IsSuccess = false
+                };
+                var res = JsonConvert.SerializeObject(dto);
+                var apiResponseDto = JsonConvert.DeserializeObject<T>(res);
+                return apiResponseDto;
+            }
         }
 
         #region Dispose

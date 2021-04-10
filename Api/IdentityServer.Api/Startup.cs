@@ -59,7 +59,7 @@ namespace IdentityServer.Api
             services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
-                    options.Authority = "https://localhost:44367";
+                    options.Authority = "https://localhost:5001";
 
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -98,6 +98,7 @@ namespace IdentityServer.Api
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             //app.UseEndpoints(endpoints =>

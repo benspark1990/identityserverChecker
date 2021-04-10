@@ -25,9 +25,9 @@ namespace IdentityServer.Api.Controllers
             this._response = new ResponseDto();
         }
 
-        // GET: api/<ProductController>
+        // GET: api/<SecureProductController>
         [HttpGet]
-        [Route("api/Product")]
+        [Route("api/SecureProduct")]
         public async Task<object> Get()
         {
             try
@@ -43,9 +43,9 @@ namespace IdentityServer.Api.Controllers
             }
             return _response;
         }
-        // GET: api/<ProductController>
+        // GET: api/<SecureProductController>
         [HttpGet]
-        [Route("api/Product/Active")]
+        [Route("api/SecureProduct/Active")]
         public async Task<object> GetActive()
         {
             try
@@ -61,9 +61,9 @@ namespace IdentityServer.Api.Controllers
             }
             return _response;
         }
-        // GET api/<ProductController>/5
+        // GET api/<SecureProductController>/5
         [HttpGet]
-        [Route("api/Product/{id}")]
+        [Route("api/SecureProduct/{id}")]
         public async Task<object> Get(long id)
         {
             try
@@ -80,9 +80,9 @@ namespace IdentityServer.Api.Controllers
             return _response;
         }
 
-        // POST api/<ProductController>
+        // POST api/<SecureProductController>
         [HttpPost]
-        [Route("api/Product")]
+        [Route("api/SecureProduct")]
         public async Task<object> Post([FromBody] ProductDto productDto)
         {
             try
@@ -98,9 +98,9 @@ namespace IdentityServer.Api.Controllers
             return _response;
         }
 
-        // PUT api/<ProductController>/5
+        // PUT api/<SecureProductController>/5
         [HttpPut]
-        [Route("api/Product")]
+        [Route("api/SecureProduct")]
         public async Task<object> Put([FromBody] ProductDto productDto)
         {
             try
@@ -116,9 +116,9 @@ namespace IdentityServer.Api.Controllers
             return _response;
         }
 
-        // DELETE api/<ProductController>/5
+        // DELETE api/<SecureProductController>/5
         [HttpDelete]
-        [Route("api/Product/{id}")]
+        [Route("api/SecureProduct/{id}")]
         public async Task<object> Delete(long id)
         {
             try

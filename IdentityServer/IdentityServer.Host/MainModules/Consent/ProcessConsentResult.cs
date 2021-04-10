@@ -1,5 +1,5 @@
 
-using IdentityServer4.Models;
+using Duende.IdentityServer.Models;
 
 namespace IdentityServer.Host.MainModules.UI
 {
