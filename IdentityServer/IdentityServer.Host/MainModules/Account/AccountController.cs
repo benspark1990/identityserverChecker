@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace IdentityServer.Host.MainModules.UI
 {
@@ -64,7 +65,17 @@ namespace IdentityServer.Host.MainModules.UI
 
             return View(vm);
         }
+        /// <summary>
+        /// Entry point into the registration workflow
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> Register(string returnUrl)
+        {
+            // build a model so we know what to show on the reg page
+            var vm = await BuildRegisterViewModelAsync(returnUrl);
 
+            return View(vm);
+        }
         /// <summary>
         /// Handle postback from username/password login
         /// </summary>
@@ -139,7 +150,7 @@ namespace IdentityServer.Host.MainModules.UI
                     }
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId:context?.Client.ClientId));
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
                 ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
             }
 
@@ -147,8 +158,61 @@ namespace IdentityServer.Host.MainModules.UI
             var vm = await BuildLoginViewModelAsync(model);
             return View(vm);
         }
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
 
-        
+                var user = new ApplicationUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email,
+                    EmailConfirmed = true
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    var userRole = await _roleManager.FindByNameAsync("User");
+                    if (userRole == null)
+                    {
+                        userRole = new IdentityRole
+                        {
+                            Name = "User",
+                            NormalizedName = "User"
+                        };
+                        await _roleManager.CreateAsync(userRole);
+                    }
+                    if (_roleManager.RoleExistsAsync("User").Result)
+                    {
+                        await _userManager.AddToRoleAsync(user, "User");
+                    }
+                    await _userManager.AddClaimsAsync(user, new Claim[]{
+                            new Claim(JwtClaimTypes.Name, model.Username),
+                            new Claim(JwtClaimTypes.GivenName, model.Username),
+                            new Claim(JwtClaimTypes.WebSite, "http://"+model.Username+".com"),
+                            new Claim(JwtClaimTypes.Role,"User") });
+
+                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
+                    // Send an email with this link
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
+                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                    TempData["RegisterMsg"] = "Registration success, please login now.";
+                    return RedirectToAction("Login", returnUrl );
+
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
         /// <summary>
         /// Show logout page
         /// </summary>
@@ -269,7 +333,10 @@ namespace IdentityServer.Host.MainModules.UI
                 ExternalProviders = providers.ToArray()
             };
         }
-
+        private async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl)
+        {
+            return new RegisterViewModel();
+        }
         private async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model)
         {
             var vm = await BuildLoginViewModelAsync(model.ReturnUrl);
