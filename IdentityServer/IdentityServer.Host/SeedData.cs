@@ -8,6 +8,7 @@ using Serilog;
 using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace IdentityServer.Host
 {
@@ -31,6 +32,29 @@ namespace IdentityServer.Host
                     var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
                     context.Database.Migrate();
 
+                    var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                    var adminrole = roleMgr.FindByNameAsync("Administrator").Result;
+                    if (adminrole == null)
+                    {
+                        adminrole = new IdentityRole
+                        {
+                            Name = "Administrator",
+                            NormalizedName = "Administrator"
+                        };
+                        var res = roleMgr.CreateAsync(adminrole).Result;
+
+                    }
+                    var userRole = roleMgr.FindByNameAsync("User").Result;
+                    if (userRole == null)
+                    {
+                        userRole = new IdentityRole
+                        {
+                            Name = "User",
+                            NormalizedName = "User"
+                        };
+                        var res = roleMgr.CreateAsync(userRole).Result;
+                    }
+
                     var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                     var alice = userMgr.FindByNameAsync("alice").Result;
                     if (alice == null)
@@ -46,17 +70,26 @@ namespace IdentityServer.Host
                         {
                             throw new Exception(result.Errors.First().Description);
                         }
+                        else
+                        {
+                            if (roleMgr.RoleExistsAsync("Administrator").Result)
+                            {
+                                var i = userMgr.AddToRoleAsync(alice, "Administrator").Result;
+                            }
+                        }
 
                         result = userMgr.AddClaimsAsync(alice, new Claim[]{
                             new Claim(JwtClaimTypes.Name, "Alice Smith"),
                             new Claim(JwtClaimTypes.GivenName, "Alice"),
                             new Claim(JwtClaimTypes.FamilyName, "Smith"),
                             new Claim(JwtClaimTypes.WebSite, "http://alice.com"),
+                            new Claim(JwtClaimTypes.Role,"Administrator")
                         }).Result;
                         if (!result.Succeeded)
                         {
                             throw new Exception(result.Errors.First().Description);
                         }
+
                         Log.Debug("alice created");
                     }
                     else
@@ -78,13 +111,21 @@ namespace IdentityServer.Host
                         {
                             throw new Exception(result.Errors.First().Description);
                         }
+                        else
+                        {
+                            if (roleMgr.RoleExistsAsync("User").Result)
+                            {
+                                var ii= userMgr.AddToRoleAsync(bob, "User").Result;
+                            }
+                        }
 
                         result = userMgr.AddClaimsAsync(bob, new Claim[]{
                             new Claim(JwtClaimTypes.Name, "Bob Smith"),
                             new Claim(JwtClaimTypes.GivenName, "Bob"),
                             new Claim(JwtClaimTypes.FamilyName, "Smith"),
                             new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
-                            new Claim("location", "somewhere")
+                            new Claim("location", "somewhere"),
+                             new Claim(JwtClaimTypes.Role,"User")
                         }).Result;
                         if (!result.Succeeded)
                         {

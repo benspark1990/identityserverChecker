@@ -1,10 +1,12 @@
 using IdentityServer.Web.Configurations;
 using IdentityServer.Web.Constants;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace IdentityServer.Web
@@ -43,15 +45,20 @@ namespace IdentityServer.Web
             .AddOpenIdConnect("oidc", options =>
             {
                 options.Authority = "https://localhost:5001";
-
+                options.GetClaimsFromUserInfoEndpoint = true;
                 options.ClientId = "mvc";
                 options.ClientSecret = "secret";
                 options.ResponseType = "code";
 
-                options.Scope.Add("api1");
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.ClaimActions.MapJsonKey("role", "role", "role");
+                options.TokenValidationParameters.NameClaimType = "role";
+                options.TokenValidationParameters.RoleClaimType = "role";
 
+                options.Scope.Add("api1");
                 options.SaveTokens = true;
             });
+
 
         }
 

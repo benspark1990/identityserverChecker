@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
+using IdentityModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,12 @@ namespace IdentityServer.Host
             {
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
+                //new IdentityResource
+                //{    
+                //    Name = "roles",
+                //    DisplayName = "Roles",
+                //    UserClaims = { JwtClaimTypes.Role }
+                //}
             };
 
 
@@ -56,7 +63,8 @@ namespace IdentityServer.Host
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         "api1"
-                    }
+                        //,"roles","role"
+                    }                    
                 }
             };
     }

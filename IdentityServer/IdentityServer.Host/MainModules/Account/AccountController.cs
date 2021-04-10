@@ -23,6 +23,7 @@ namespace IdentityServer.Host.MainModules.UI
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -31,6 +32,7 @@ namespace IdentityServer.Host.MainModules.UI
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleInManager,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
@@ -42,6 +44,7 @@ namespace IdentityServer.Host.MainModules.UI
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+            _roleManager = roleInManager;
         }
 
         /// <summary>
