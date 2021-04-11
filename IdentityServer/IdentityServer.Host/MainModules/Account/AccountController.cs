@@ -203,8 +203,45 @@ namespace IdentityServer.Host.MainModules.UI
                     //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
                     //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
                     //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    TempData["RegisterMsg"] = "Registration success, please login now.";
-                    return RedirectToAction("Login", returnUrl );
+                    //TempData["RegisterMsg"] = "Registration success, please login now.";
+                    //return RedirectToAction("Login", returnUrl );
+
+                    // check if we are in the context of an authorization request
+                    var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
+                    var loginresult = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, lockoutOnFailure: true);
+                    if (loginresult.Succeeded)
+                    {
+                        var checkuser = await _userManager.FindByNameAsync(model.Username);
+                        await _events.RaiseAsync(new UserLoginSuccessEvent(checkuser.UserName, checkuser.Id, checkuser.UserName, clientId: context?.Client.ClientId));
+
+                        if (context != null)
+                        {
+                            if (context.IsNativeClient())
+                            {
+                                // The client is native, so this change in how to
+                                // return the response is for better UX for the end user.
+                                return this.LoadingPage("Redirect", model.ReturnUrl);
+                            }
+
+                            // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+                            return Redirect(model.ReturnUrl);
+                        }
+
+                        // request for a local page
+                        if (Url.IsLocalUrl(model.ReturnUrl))
+                        {
+                            return Redirect(model.ReturnUrl);
+                        }
+                        else if (string.IsNullOrEmpty(model.ReturnUrl))
+                        {
+                            return Redirect("~/");
+                        }
+                        else
+                        {
+                            // user might have clicked on a malicious link - should be logged
+                            throw new Exception("invalid return URL");
+                        }
+                    }
 
                 }
             }
@@ -335,7 +372,60 @@ namespace IdentityServer.Host.MainModules.UI
         }
         private async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl)
         {
-            return new RegisterViewModel();
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
+            {
+                var local = context.IdP == Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider;
+
+                // this is meant to short circuit the UI and only trigger the one external IdP
+                var vm = new RegisterViewModel
+                {
+                    EnableLocalLogin = local,
+                    ReturnUrl = returnUrl,
+                    Username = context?.LoginHint,
+                };
+
+                if (!local)
+                {
+                    vm.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
+                }
+
+                return vm;
+            }
+
+            var schemes = await _schemeProvider.GetAllSchemesAsync();
+
+            var providers = schemes
+                .Where(x => x.DisplayName != null)
+                .Select(x => new ExternalProvider
+                {
+                    DisplayName = x.DisplayName ?? x.Name,
+                    AuthenticationScheme = x.Name
+                }).ToList();
+
+            var allowLocal = true;
+            if (context?.Client.ClientId != null)
+            {
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
+                if (client != null)
+                {
+                    allowLocal = client.EnableLocalLogin;
+
+                    if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
+                    {
+                        providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+                    }
+                }
+            }
+
+            return new RegisterViewModel
+            {
+                AllowRememberLogin = AccountOptions.AllowRememberLogin,
+                EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
+                ReturnUrl = returnUrl,
+                Username = context?.LoginHint,
+                ExternalProviders = providers.ToArray()
+            };
         }
         private async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model)
         {

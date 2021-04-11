@@ -1,14 +1,16 @@
-﻿@using Microsoft.AspNetCore.Identity
-@model IEnumerable<IdentityServer.Web.Models.ProductDto>
+﻿@model IEnumerable<IdentityServer.Web.Models.ProductDto>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Secure Products";
 }
 
-<h1>Index</h1>
+<h1>Secure Products</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
+    <h4 style="color:green">
+    @TempData["ListMessage"]
+</h4>
 </p>
 <table class="table">
     <thead>

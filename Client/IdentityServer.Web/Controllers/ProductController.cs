@@ -1,6 +1,7 @@
 ﻿using IdentityServer.Web.ApiServices.Interfaces;
 using IdentityServer.Web.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,7 @@ namespace IdentityServer.Web.Controllers
             var accessToken = await HttpContext.GetTokenAsync("access_token");
 
             List<ProductDto> list = new List<ProductDto>();
-            var resp = await _productsWebService.GetAllProductsAsync<ResponseDto>(accessToken);
+            var resp = await _productsWebService.GetActiveProductsAsync<ResponseDto>(accessToken);
             if (resp != null && resp.IsSuccess)
             {
                 list = JsonConvert.DeserializeObject<List<ProductDto>>(Convert.ToString(resp.Result));
@@ -69,7 +70,7 @@ namespace IdentityServer.Web.Controllers
         }
 
         // GET: ProductController/Edit/5
-        public async Task<ActionResult> Edit(int id)
+        public async Task<ActionResult> Edit(long id)
         {
             ProductDto model = new ProductDto();
             try
@@ -109,19 +110,47 @@ namespace IdentityServer.Web.Controllers
             }
 
         }
+        [Authorize(Roles = "Administrator")]
 
+        // GET: ProductController/Delete/5
+        public async Task<ActionResult> Delete(long id)
+        {
+            ProductDto model = new ProductDto();
+            try
+            {
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var resp = await _productsWebService.GetProductByIdAsync<ResponseDto>(id, accessToken);
+                if (resp != null && resp.IsSuccess)
+                {
+                    model = JsonConvert.DeserializeObject<ProductDto>(Convert.ToString(resp.Result));
+                }
+                return View(model);
+            }
+            catch
+            {
+                return View(model);
+            }
+        }
+        [Authorize(Roles = "Administrator")]
         // POST: ProductController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(ProductDto productDto)
         {
             try
             {
+                var accessToken = await HttpContext.GetTokenAsync("access_token");
+                var resp = await _productsWebService.DeleteProductAsync<ResponseDto>(productDto.ID, accessToken);
+                if (resp != null && resp.IsSuccess)
+                {
+                    TempData["ListMessage"] = "Data deleted.";
+                    return RedirectToAction(nameof(Index));
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                return RedirectToAction(nameof(Index));
             }
         }
     }
