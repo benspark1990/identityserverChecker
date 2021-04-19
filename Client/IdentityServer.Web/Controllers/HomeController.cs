@@ -2,6 +2,7 @@
 using IdentityServer.Web.Constants;
 using IdentityServer.Web.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -33,6 +34,7 @@ namespace IdentityServer.Web.Controllers
         {
             return View();
         }
+        [Authorize]
         public async Task<IActionResult> CallApi()
         {
             try
@@ -49,7 +51,7 @@ namespace IdentityServer.Web.Controllers
             }
             finally
             {
-                    
+
             }
             return View("json");
 

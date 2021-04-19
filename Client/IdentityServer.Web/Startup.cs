@@ -85,8 +85,8 @@ namespace IdentityServer.Web
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute()
-                    .RequireAuthorization();
+                endpoints.MapDefaultControllerRoute();
+                    //.RequireAuthorization();
             });
         }
     }
