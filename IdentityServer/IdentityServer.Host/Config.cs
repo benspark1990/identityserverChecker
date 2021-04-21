@@ -51,7 +51,8 @@ namespace IdentityServer.Host
                     ClientSecrets = { new Secret("secret".Sha256()) },
 
                     AllowedGrantTypes = GrantTypes.Code,
-                    
+                    ClientUri="https://localhost:44368/",
+                    ClientName="MVC Client",
                     // where to redirect to after login
                     RedirectUris = { "https://localhost:44368/signin-oidc" },
 
@@ -64,7 +65,7 @@ namespace IdentityServer.Host
                         IdentityServerConstants.StandardScopes.Profile,
                         "api1"
                         //,"roles","role"
-                    }                    
+                    }
                 }
             };
     }

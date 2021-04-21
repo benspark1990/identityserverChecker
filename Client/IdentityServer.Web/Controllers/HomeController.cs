@@ -37,22 +37,7 @@ namespace IdentityServer.Web.Controllers
         [Authorize]
         public async Task<IActionResult> CallLogin()
         {
-            try
-            {
-                var accessToken = await HttpContext.GetTokenAsync("access_token");
-
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var content = await client.GetStringAsync("https://localhost:44303/api/identity");
-
-                ViewBag.Json = JArray.Parse(content).ToString();
-            }
-            finally
-            {
-
-            }
-            return View("json");
-
+            return RedirectToAction("Index");
         }
         [Authorize]
         public async Task<IActionResult> CallApi()

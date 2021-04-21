@@ -49,7 +49,7 @@ namespace IdentityServer.Web
                 options.ClientId = "mvc";
                 options.ClientSecret = "secret";
                 options.ResponseType = "code";
-
+                options.SignedOutRedirectUri = "https://localhost:44368";
                 options.GetClaimsFromUserInfoEndpoint = true;
                 options.ClaimActions.MapJsonKey("role", "role", "role");
                 options.TokenValidationParameters.NameClaimType = "role";
@@ -78,7 +78,7 @@ namespace IdentityServer.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting(); 
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -86,7 +86,7 @@ namespace IdentityServer.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
-                    //.RequireAuthorization();
+                //.RequireAuthorization();
             });
         }
     }

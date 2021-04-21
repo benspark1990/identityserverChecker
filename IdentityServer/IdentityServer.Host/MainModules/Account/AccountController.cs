@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Web;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
@@ -89,8 +90,14 @@ namespace IdentityServer.Host.MainModules.UI
             // the user clicked the "cancel" button
             if (button != "login")
             {
+
                 if (context != null)
                 {
+                    if (button == "cancel")
+                    {
+                        var uri = context.Client.ClientUri;
+                        return Redirect(uri);
+                    }
                     // if the user cancels, send a result back into IdentityServer as if they 
                     // denied the consent (even if this client does not require consent).
                     // this will send back an access denied OIDC error response to the client.
@@ -299,7 +306,10 @@ namespace IdentityServer.Host.MainModules.UI
                 // this triggers a redirect to the external provider for sign-out
                 return SignOut(new AuthenticationProperties { RedirectUri = url }, vm.ExternalAuthenticationScheme);
             }
-
+            else
+            {
+                return Redirect(vm.PostLogoutRedirectUri);
+            }
             return View("LoggedOut", vm);
         }
 
@@ -493,7 +503,6 @@ namespace IdentityServer.Host.MainModules.UI
                     }
                 }
             }
-
             return vm;
         }
     }
