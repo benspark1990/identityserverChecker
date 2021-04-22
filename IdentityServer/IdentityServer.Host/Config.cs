@@ -16,8 +16,6 @@ namespace IdentityServer.Host
                 new IdentityResources.OpenId(),
                 new IdentityResources.Profile(),
                 new IdentityResources.Email(),
-                new IdentityResources.Phone(),
-                new IdentityResources.Address(),
                 //new IdentityResource
                 //{    
                 //    Name = "roles",
@@ -67,8 +65,6 @@ namespace IdentityServer.Host
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.Email,
-                        IdentityServerConstants.StandardScopes.Phone,
-                        IdentityServerConstants.StandardScopes.Address,
                         "api1"
                         //,"roles","role"
                     }
