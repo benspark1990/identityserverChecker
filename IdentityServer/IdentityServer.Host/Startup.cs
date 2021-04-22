@@ -50,7 +50,8 @@ namespace IdentityServer.Host
                 .AddAspNetIdentity<ApplicationUser>();
 
             services.AddScoped<IProfileService, ProfileService>();
-
+            builder
+                .AddProfileService<ProfileService>();
             // not recommended for production - you need to store your key material somewhere secure
             builder.AddDeveloperSigningCredential();
 

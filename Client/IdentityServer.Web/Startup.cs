@@ -50,15 +50,13 @@ namespace IdentityServer.Web
                 options.ClientSecret = "secret";
                 options.ResponseType = "code";
                 options.SignedOutRedirectUri = "https://localhost:44368";
-                options.GetClaimsFromUserInfoEndpoint = true;
                 options.ClaimActions.MapJsonKey("role", "role", "role");
-                options.TokenValidationParameters.NameClaimType = "role";
-                options.TokenValidationParameters.RoleClaimType = "role";
 
+                options.TokenValidationParameters.NameClaimType = "name";
+                options.TokenValidationParameters.RoleClaimType = "role";
                 options.Scope.Add("api1");
                 options.SaveTokens = true;
             });
-
 
         }
 

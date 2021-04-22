@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace IdentityServer.Web.Controllers
@@ -48,15 +49,18 @@ namespace IdentityServer.Web.Controllers
 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var content = await client.GetStringAsync("https://localhost:44303/api/product");
+                //var content = await client.GetStringAsync("https://localhost:44303/api/product");
 
-                var resObj = JsonConvert.DeserializeObject<ResponseDto>(content);
+                //var resObj = JsonConvert.DeserializeObject<ResponseDto>(content);
 
-                ViewBag.Json = JsonConvert.SerializeObject(resObj);
+                //ViewBag.Json = JsonConvert.SerializeObject(resObj);
+
+                var content = await client.GetStringAsync("https://localhost:44303/api/identity");
+
+                ViewBag.Json = JArray.Parse(content).ToString();
             }
             finally
             {
-
             }
             return View("json");
 

@@ -83,7 +83,9 @@ namespace IdentityServer.Host
                             new Claim(JwtClaimTypes.GivenName, "Alice"),
                             new Claim(JwtClaimTypes.FamilyName, "Smith"),
                             new Claim(JwtClaimTypes.WebSite, "http://alice.com"),
-                            new Claim(JwtClaimTypes.Role,"Administrator")
+                            new Claim(JwtClaimTypes.Role,"Administrator"),
+                            new Claim(JwtClaimTypes.Email,alice.Email),
+
                         }).Result;
                         if (!result.Succeeded)
                         {
@@ -115,7 +117,7 @@ namespace IdentityServer.Host
                         {
                             if (roleMgr.RoleExistsAsync("User").Result)
                             {
-                                var ii= userMgr.AddToRoleAsync(bob, "User").Result;
+                                var ii = userMgr.AddToRoleAsync(bob, "User").Result;
                             }
                         }
 
@@ -124,8 +126,10 @@ namespace IdentityServer.Host
                             new Claim(JwtClaimTypes.GivenName, "Bob"),
                             new Claim(JwtClaimTypes.FamilyName, "Smith"),
                             new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
+                            new Claim(JwtClaimTypes.Email,bob.Email),
                             new Claim("location", "somewhere"),
                              new Claim(JwtClaimTypes.Role,"User")
+
                         }).Result;
                         if (!result.Succeeded)
                         {

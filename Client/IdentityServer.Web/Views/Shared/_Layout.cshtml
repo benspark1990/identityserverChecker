@@ -27,11 +27,19 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="SecureProduct" asp-action="Index">Secure Product</a>
                         </li>
-
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-secondary" asp-area="" asp-controller="Home" asp-action="Index">Hello @User.Identity.Name</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-light" asp-area="" asp-controller="Home" asp-action="Index">@User.Claims.Where(a => a.Type == "given_name")?.FirstOrDefault()?.Value</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-light" asp-area="" asp-controller="Home" asp-action="Index">@User.Claims.Where(a => a.Type == "sub")?.FirstOrDefault()?.Value</a>
                             </li>
                         }
                         else
@@ -47,6 +55,8 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+
+
             @RenderBody()
         </main>
     </div>
